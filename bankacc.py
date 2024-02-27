@@ -2,9 +2,25 @@ class Bank_Account:
     def __init__(self) -> None:
         self.account_balance = 0
         self.options = ["Deposit", "Withdrawal", "Check Balance"]
-    def create_account(self):            # Function to create an account.
-        
+        self.account_holder = None
+        self.password = None
 
+    def create_account(self):            # Function to create an account.
+        allowed_special_characters = "!@#$%^&*()-_=+[]{};:'\"\\|,.<>/?`~"
+        while True:
+            self.account_holder = input("Please enter your full name: ").lower()
+            if self.account_holder.replace(" ", "").isalpha():
+                break
+            else:
+                print("Please enter only letters.")
+        while True:
+            self.password = input(f"Set a passcode (Special Characters allowed): ")
+            if all(char.isalnum() or char in allowed_special_characters for char in self.password):
+                break
+            else:
+                print("Invalid Password.")
+        
+        print("Account created successfully!")
 
     def option_select(self):             # Option select function with 1, 2, 3 or x to quit
         while True:
