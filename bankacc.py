@@ -15,9 +15,9 @@ class Bank_Account:
         self.account_holder = None
         self.password = None
         self.logged_in = False
-        current_directory = os.getcwd()     # To get the current working directory
-        self.accounts_file = os.path.join(current_directory, "Accounts.txt")    #File to store account information
-        self.log_file = os.path.join(current_directory, "login.log")  # Log file for login activities
+        save_directory = r"D:\Python\VS CODE PYTHON\Bank Prototype"
+        self.accounts_file = os.path.join(save_directory, "Accounts.csv")    #File to store account information
+        self.log_file = os.path.join(save_directory, "login.log")  # Log file for login activities
 
         # Configure logging to write to a file
         logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -31,7 +31,7 @@ class Bank_Account:
             else:
                 print("Please enter a valid full name with at least 3 characters.")
         while True:     # Check if password is valid
-            self.password = input(f"Set a passcode (Special Characters allowed): ")
+            self.password = input("Set a passcode (Special Characters allowed): ")
             if all(char.isalnum() or char in allowed_special_characters for char in self.password):
                 break
             else:
@@ -40,9 +40,16 @@ class Bank_Account:
         # Generate User ID
         user_id = self.generate_user_id(self.account_holder)
 
+        file_exists_and_empty = os.path.exists(self.accounts_file) and os.path.getsize(self.accounts_file) == 0
+
+        # Write headers if the file is empty or doesn't exist
+        if not file_exists_and_empty:
+            with open(self.accounts_file, "w") as file:
+                file.write("Name | User ID | Password | Balance\n")
+
         # Save account information to file
         with open(self.accounts_file, "a") as file:
-            file.write(f"{self.account_holder},{user_id},{self.password},{self.account_balance}\n")
+            file.write(f"{self.account_holder} | {user_id} | {self.password} | {self.account_balance}\n")
         
         print("Account created successfully!")
         print(f"Your new User ID is {user_id}")
@@ -64,23 +71,33 @@ class Bank_Account:
             print("No accounts found. Please create an account first or contact support.")
             return False
         
+        print("Attempting to log in...")
+        
         while True:
             username = input("Enter your User ID: ").lower()
             password = input("Enter your password: ")
+
             # Check if username and password match any account in the file
             with open(self.accounts_file, "r") as file:
                 for line in file:
-                    parts = line.strip().split(",")
+                    parts = line.strip().split(" | ")
                     if len(parts) == 4:
-                        _, user_id, acc_password, _ = line.strip().split(",")
+                        _, user_id, acc_password, _ = line.strip().split(" | ")
+                        print("Checking:", user_id, acc_password)
                         if username == user_id.lower() and password == acc_password:
                             print("Login successful!")
                             self.user_id = user_id
                             self.account_balance = int(parts[3])
                             return True
                 print("Invalid username or password. Please Try again.")
-
                 return False
+    
+    def logout(self):
+        pass
+
+    def log_login_attempt(self, username, success):
+        with open(self.log_file, "a") as log_file:
+            log_file.write(f"Login Attepmt: Username={username}, Success={success}, Timestamp={datetime.datetime.now()}\n")
 
     def option_select(self):             # Option select function with 1, 2, 3 or x to quit
         while not self.logged_in:
@@ -125,10 +142,11 @@ class Bank_Account:
         if self.account_balance >= how_much_w:
             self.account_balance -= how_much_w
             print("Here is your request.") 
-            print(f"Your remaining funds are {self.account_balance}\n")
+            print(f"Your remaining funds are {self.account_balance}€\n")
             self.update_account_file()  # Update new balance
         else:
             print("Insufficient funds!")
+            print(f"You only have {self.account_balance}€ in your account.")
     
     def update_account_file(self):
         with open(self.accounts_file, "r") as file:
@@ -136,19 +154,19 @@ class Bank_Account:
 
         with open(self.accounts_file, "w") as file:
             for line in lines:
-                parts = line.strip().split(",")
+                parts = line.strip().split(" | ")
                 if len(parts) == 4 and parts[1] == self.user_id:
-                    line = f"{parts[0]},{parts[1]},{parts[2]},{self.account_balance}\n"
+                    line = f"{parts[0]} | {parts[1]} | {parts[2]} | {self.account_balance}\n"
                 file.write(line)
     
     def check_balance(self):           # Checking how much balance is in the account.
         balance_found = False
         with open(self.accounts_file, "r") as file:
             for line in file:
-                parts = line.strip().split(",")
+                parts = line.strip().split(" | ")
                 if len(parts) == 4 and parts[1] == self.user_id:
                     balance = int(parts[3])
-                    print(f"Your current balance is {balance}.")
+                    print(f"Your current balance is {balance}€.")
                     balance_found = True
                     break
 
