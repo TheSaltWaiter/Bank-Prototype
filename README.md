@@ -10,3 +10,12 @@ Created function to "deposit"
 Created function to "withdraw"
 
 Created function to "check balance"
+
+Created function to "log in"
+
+Created function to "generate user_id"
+
+Created function to "update account file"
+
+Added loging.log file
+Added Accounts.csv file
