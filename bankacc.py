@@ -40,15 +40,9 @@ class Bank_Account:
         # Generate User ID
         user_id = self.generate_user_id(self.account_holder)
 
-        file_exists_and_empty = os.path.exists(self.accounts_file) and os.path.getsize(self.accounts_file) == 0
-
-        # Write headers if the file is empty or doesn't exist
-        if not file_exists_and_empty:
-            with open(self.accounts_file, "w") as file:
-                file.write("Name | User ID | Password | Balance\n")
-
-        # Save account information to file
         with open(self.accounts_file, "a") as file:
+            if os.path.getsize(self.accounts_file) == 0:
+                file.write("Name | User ID | Password | Balance\n")
             file.write(f"{self.account_holder} | {user_id} | {self.password} | {self.account_balance}\n")
         
         print("Account created successfully!")
